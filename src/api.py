@@ -1,3 +1,4 @@
+# api.py
 """
 FastAPI app that exposes /predict.
 POST /predict with JSON: {"inputs": [[...], [...]]}
@@ -6,7 +7,7 @@ Returns: {"predictions": [probabilities]}
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List
-import src.model as model_module
+from .model import predict as predict_fn
 
 app = FastAPI(title="Simple MLOps Demo API")
 
@@ -23,7 +24,7 @@ def root():
 @app.post("/predict", response_model=PredictResponse)
 def predict(req: PredictRequest):
     try:
-        preds = model_module.predict(req.inputs)
+        preds = predict_fn(req.inputs)
     except FileNotFoundError as e:
         raise HTTPException(status_code=500, detail=str(e))
     except Exception as e:

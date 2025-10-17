@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run tests
+        run: |
+          pytest -q
+
+      - name: Build Docker image
+        run: |
+          docker build -t mlops-project-a:ci .
+
+      # Optional: push image to registry (commented out)
+      # To enable, configure REGISTRY, IMAGE_NAME and set secrets for authentication
+      # - name: Log in to registry
+      #   run: echo "$REGISTRY_TOKEN" | docker login $REGISTRY -u $REGISTRY_USER --password-stdin
+      # - name: Tag and push
+      #   run: |
+      #     docker tag mlops-project-a:ci $REGISTRY/$IMAGE_NAME:latest
+      #     docker push $REGISTRY/$IMAGE_NAME:latest
